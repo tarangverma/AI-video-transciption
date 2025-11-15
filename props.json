@@ -1,0 +1,10 @@
+{
+  "videoSrc": "http://localhost:63240/vv.mp4",
+  "captions": [
+    { "start": 0, "end": 2.5, "text": "Hello world" },
+    { "start": 2.5, "end": 5.0, "text": "This is a test" }
+  ],
+  "style": "bottom-centered",
+  "durationInFrames": 300,
+  "fps": 30
+}
