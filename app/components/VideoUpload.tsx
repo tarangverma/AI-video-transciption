@@ -28,7 +28,7 @@ export const VideoUpload: React.FC<VideoUploadProps> = ({
         boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
       }}
     >
-      <h3 style={{ marginTop: 0 }}>📤 Upload Video</h3>
+      <h3 style={{ marginTop: 0, color: '#00000' }}>📤 Upload Video</h3>
       
       {/* Show API key status */}
       {!hasApiKey && (
