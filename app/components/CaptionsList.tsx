@@ -1,8 +1,8 @@
 import React from 'react';
-import { Caption } from './CaptionedVideo';
+import { CaptionSegment } from './CaptionedVideo';
 
 interface CaptionsListProps {
-  captions: Caption[];
+  captions: CaptionSegment[];
 }
 
 export const CaptionsList: React.FC<CaptionsListProps> = ({ captions }) => {

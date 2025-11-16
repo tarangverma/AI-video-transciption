@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function ApiKeyInput({ apiKey, setApiKey, setShowApiInput }) {
+export default function ApiKeyInput({ apiKey, setApiKey, setShowApiInput }:{apiKey: any, setApiKey: any, setShowApiInput: any}) {
   return (
     <div style={{ background: '#fff', borderRadius: '12px', padding: '20px', marginBottom: '20px', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
       <h3 style={{ margin: '0 0 10px 0' }}>🔑 Google AI Studio API Key</h3>

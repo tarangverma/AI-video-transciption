@@ -13,7 +13,6 @@ export const RemotionRoot: React.FC = () => {
     videoSrc: staticFile('vv.mp4'),
     captions: [],
     style: 'bottom-centered',
-    durationInFrames: durationInFrames,
     fps: fps
   };
 

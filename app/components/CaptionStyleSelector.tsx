@@ -1,9 +1,9 @@
 import React from 'react';
-import { CaptionStyleType } from './CaptionedVideo';
+import { CaptionStyle } from './CaptionedVideo';
 
 interface CaptionStyleSelectorProps {
-  captionStyle: CaptionStyleType;
-  onStyleChange: (style: CaptionStyleType) => void;
+  captionStyle: CaptionStyle;
+  onStyleChange: (style: CaptionStyle) => void;
   onExport: () => void;
   showExport: boolean;
 }

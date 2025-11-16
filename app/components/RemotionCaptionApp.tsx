@@ -1,22 +1,23 @@
 "use client";
 import React, { useState, useRef, ChangeEvent } from 'react';
 import { Player, PlayerRef } from '@remotion/player';
-import { CaptionedVideo, Caption, CaptionStyleType  } from './CaptionedVideo';
+import { CaptionedVideo, CaptionSegment, CaptionStyle } from './CaptionedVideo';
 import { CaptionStyleSelector } from './CaptionStyleSelector';
 import { VideoUpload } from './VideoUpload';
 import { CaptionsList } from './CaptionsList';
 
-export default function RemotionCaptionApp() {
+export const RemotionCaptionApp: React.FC = () => {
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [videoUrl, setVideoUrl] = useState<string>('');
-  const [captions, setCaptions] = useState<Caption[]>([]);
-  const [captionStyle, setCaptionStyle] = useState<CaptionStyleType>('bottom-centered');
+  const [captions, setCaptions] = useState<CaptionSegment[]>([]);
+  const [captionStyle, setCaptionStyle] = useState<CaptionStyle>('bottom-centered');
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
-  const [apiKey, setApiKey] = useState<string>('');
   const [duration, setDuration] = useState<number>(0);
-  const [showApiInput, setShowApiInput] = useState<boolean>(true);
 
   const playerRef = useRef<PlayerRef | null>(null);
+
+  // Get API key from environment variable
+  const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
 
   const handleVideoUpload = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -54,8 +55,15 @@ export default function RemotionCaptionApp() {
   };
 
   const generateCaptions = async () => {
-    if (!videoFile || !apiKey) {
-      alert('Please upload a video and enter your Google AI Studio API key');
+    if (!videoFile) {
+      alert('Please upload a video file');
+      return;
+    }
+
+    if (!apiKey) {
+      alert(
+        'Gemini API key is not configured. Please set NEXT_PUBLIC_GEMINI_API_KEY in your environment variables.'
+      );
       return;
     }
 
@@ -64,8 +72,7 @@ export default function RemotionCaptionApp() {
       const videoBase64 = await convertVideoToBase64(videoFile);
 
       const response = await fetch(
-        'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=' +
-          apiKey,
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${apiKey}`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -124,7 +131,7 @@ export default function RemotionCaptionApp() {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const parsedCaptions: any = JSON.parse(jsonText);
 
-      const generatedCaptions: Caption[] = parsedCaptions
+      const generatedCaptions: CaptionSegment[] = parsedCaptions
         .map((cap: any, idx: number) => {
           const start =
             typeof cap.start === 'number'
@@ -147,7 +154,7 @@ export default function RemotionCaptionApp() {
             text,
           };
         })
-        .filter((cap: Caption) => cap.text.trim().length > 0);
+        .filter((cap: CaptionSegment) => cap.text.trim().length > 0);
 
       if (generatedCaptions.length === 0) {
         throw new Error('No valid captions generated');
@@ -171,7 +178,7 @@ export default function RemotionCaptionApp() {
       'To export the video:\n\n' +
         '1. Install Remotion CLI: npm i -g @remotion/cli\n' +
         '2. Set up a Remotion project with this composition\n' +
-        '3. Run: npx remotion render <composition-id> output.mp4\n\n' +
+        '3. Run: npx remotion render CaptionedVideo output.mp4\n\n' +
         'For client-side export, you can use screen recording tools while playing the video.'
     );
   };
@@ -214,76 +221,26 @@ export default function RemotionCaptionApp() {
           >
             Upload video → Auto-generate captions → Preview with styles
           </p>
-        </div>
-
-        {showApiInput && (
-          <div
-            style={{
-              background: '#fff',
-              borderRadius: '12px',
-              padding: '20px',
-              marginBottom: '20px',
-              boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
-            }}
-          >
-            <h3 style={{ margin: '0 0 10px 0' }}>🔑 Google AI Studio API Key</h3>
-            <p
+          
+          {/* Show API status */}
+          {!apiKey && (
+            <div
               style={{
-                fontSize: '14px',
-                color: '#666',
-                marginBottom: '10px',
-              }}
-            >
-              Get your free API key from{' '}
-              <a
-                href="https://aistudio.google.com/app/apikey"
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{ color: '#667eea' }}
-              >
-                Google AI Studio
-              </a>
-            </p>
-            <input
-              type="password"
-              value={apiKey}
-              onChange={(e) => setApiKey(e.target.value)}
-              placeholder="Enter your Google AI Studio (Gemini) API key"
-              style={{
-                width: '100%',
-                padding: '12px',
-                fontSize: '16px',
-                border: '2px solid #ddd',
+                background: 'rgba(255,0,0,0.1)',
+                border: '1px solid rgba(255,0,0,0.3)',
                 borderRadius: '8px',
-                marginBottom: '10px',
-              }}
-            />
-            <button
-              onClick={() => setShowApiInput(false)}
-              disabled={!apiKey}
-              style={{
-                padding: '10px 20px',
-                background: apiKey ? '#667eea' : '#ccc',
-                color: '#fff',
-                border: 'none',
-                borderRadius: '8px',
-                cursor: apiKey ? 'pointer' : 'not-allowed',
-                fontWeight: 600,
-              }}
-            >
-              Save API Key
-            </button>
-            <p
-              style={{
-                fontSize: '12px',
-                color: '#999',
+                padding: '10px',
                 marginTop: '10px',
+                maxWidth: '500px',
+                margin: '10px auto',
               }}
             >
-              💡 Tip: Keep videos under 1 minute for faster processing
-            </p>
-          </div>
-        )}
+              <p style={{ color: '#ff6b6b', margin: 0, fontSize: '14px' }}>
+                ⚠️ Gemini API key not found. Please set NEXT_PUBLIC_GEMINI_API_KEY in your environment variables.
+              </p>
+            </div>
+          )}
+        </div>
 
         <div
           style={{
